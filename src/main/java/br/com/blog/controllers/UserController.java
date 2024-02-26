@@ -30,7 +30,7 @@ public class UserController {
         UserModel user = userService.verifyUsername(userModel);
 
         if (user != null) {
-            Boolean passwordCorrect = userService.existsPassword(userModel.getPassword(), user.getPassword());
+            Boolean passwordCorrect = userService.checkPassword(userModel.getPassword(), user.getPassword());
 
             if (passwordCorrect) {
                 return ResponseEntity.status(HttpStatus.OK).body("Login, success!");

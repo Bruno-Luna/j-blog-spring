@@ -31,7 +31,7 @@ public class UserService {
         return userRepository.getByUsername(userModel.getUsername());
     }
 
-    public Boolean existsPassword(String passwordEntered, String currentPassword) {
+    public Boolean checkPassword(String passwordEntered, String currentPassword) {
         return crypt.matches(passwordEntered, currentPassword);
     }
 
