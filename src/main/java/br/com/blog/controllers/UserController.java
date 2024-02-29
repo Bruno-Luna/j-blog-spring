@@ -3,11 +3,14 @@ package br.com.blog.controllers;
 import br.com.blog.models.UserModel;
 import br.com.blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -33,7 +36,11 @@ public class UserController {
             Boolean passwordCorrect = userService.checkPassword(userModel.getPassword(), user.getPassword());
 
             if (passwordCorrect) {
-                return ResponseEntity.status(HttpStatus.OK).body("Login, success!");
+                HttpHeaders httpAuth = userService.createHeaders(user.getUsername() ,userModel.getPassword());
+                ArrayList login = new ArrayList();
+                login.add(httpAuth);
+                login.add("Login success");
+                return ResponseEntity.status(HttpStatus.OK).body(login);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Password incorrect!");
             }
