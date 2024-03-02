@@ -3,6 +3,7 @@ package br.com.blog.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.UUID;
 
 @Entity
@@ -14,8 +15,10 @@ public class PostModel {
     private UUID postId;
 
     @Column(nullable = false)
+    @Size(max = 100)
     private String title;
     @Column(nullable = false)
+    @Size(max = 1000)
     private String body;
 
     @ManyToOne
