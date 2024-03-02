@@ -1,14 +1,15 @@
 package br.com.blog.controllers;
 
 import br.com.blog.models.PostModel;
-import br.com.blog.models.UserModel;
-import br.com.blog.services.UserService;
+import br.com.blog.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -16,16 +17,20 @@ import javax.validation.Valid;
 public class PostController {
 
     @Autowired
-    UserService userService;
+    PostService postService;
 
     @PostMapping()
     public ResponseEntity<Object> insertPost(@RequestBody @Valid PostModel postModel){
-
-        System.out.println(postModel.getBody());
-        System.out.println(postModel.getTitle());
-        System.out.println(postModel.getUser().getUserId());
-
-        return null;
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.savePost(postModel));
     }
 
+    @PutMapping()
+    public ResponseEntity<Object> editPost(@RequestBody @Valid PostModel postModel){
+        return ResponseEntity.status(HttpStatus.OK).body(postService.editPost(postModel));
+    }
+
+    @DeleteMapping()
+    public void deletePost(@RequestBody @Valid Map<String, String> postId){
+        postService.deletePost(postId);
+    }
 }
