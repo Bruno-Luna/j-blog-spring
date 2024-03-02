@@ -20,7 +20,7 @@ public class PostModel {
     @Size(max = 100)
     private String title;
     @Column(nullable = false)
-    @Size(max = 1000)
+    @Lob
     private String body;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-YYYY")
