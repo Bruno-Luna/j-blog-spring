@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,12 +24,14 @@ public class PostService {
 
     @Transactional
     public PostModel savePost(PostModel postModel) {
+        postModel.setDate(LocalDate.now());
         return postRepository.save(postModel);
     }
 
     @Transactional
     public PostModel editPost(PostModel postModel) {
         PostModel post = postRepository.getById(postModel.getPostId());
+        postModel.setDate(LocalDate.now());
         BeanUtils.copyProperties(postModel, post);
         return postRepository.save(post);
     }
