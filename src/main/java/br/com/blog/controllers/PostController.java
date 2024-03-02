@@ -19,6 +19,11 @@ public class PostController {
     @Autowired
     PostService postService;
 
+    @GetMapping()
+    ResponseEntity<Object> getAllPosts(){
+        return ResponseEntity.status(HttpStatus.OK).body(postService.listAllPost());
+    }
+
     @PostMapping()
     public ResponseEntity<Object> insertPost(@RequestBody @Valid PostModel postModel){
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.savePost(postModel));

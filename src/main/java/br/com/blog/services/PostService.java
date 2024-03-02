@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -15,6 +16,10 @@ public class PostService {
 
     @Autowired
     PostRepository postRepository;
+
+    public List<PostModel> listAllPost() {
+        return postRepository.findAll();
+    }
 
     @Transactional
     public PostModel savePost(PostModel postModel) {
