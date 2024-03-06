@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -22,6 +21,12 @@ public class PostController {
     @GetMapping()
     ResponseEntity<Object> getAllPosts(){
         return ResponseEntity.status(HttpStatus.OK).body(postService.listAllPost());
+    }
+
+    @GetMapping("/{userId}")
+    ResponseEntity<Object> getAllPostsByIdUser(@PathVariable("userId") String userId){
+
+        return ResponseEntity.status(HttpStatus.OK).build(postService.listAllPostByIdUser(userId));
     }
 
     @PostMapping()

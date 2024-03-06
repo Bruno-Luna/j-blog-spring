@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +21,19 @@ public class PostService {
 
     public List<PostModel> listAllPost() {
         return postRepository.findAll();
+    }
+
+    public List<PostModel> listAllPostByIdUser(String idUser) {
+
+        UUID uuidUser = UUID.fromString(idUser);
+        List<PostModel> listPostUser = new ArrayList<>();
+
+        for(PostModel post : postRepository.findAll()){
+            if(uuidUser.equals(post.getUser().getUserId())){
+                listPostUser.add(post);
+            }
+        }
+        return listPostUser;
     }
 
     @Transactional
