@@ -28,8 +28,8 @@ public class PostService {
         UUID uuidUser = UUID.fromString(idUser);
         List<PostModel> listPostUser = new ArrayList<>();
 
-        for(PostModel post : postRepository.findAll()){
-            if(uuidUser.equals(post.getUser().getUserId())){
+        for (PostModel post : postRepository.findAll()) {
+            if (uuidUser.equals(post.getUser().getUserId())) {
                 listPostUser.add(post);
             }
         }
@@ -51,7 +51,7 @@ public class PostService {
     }
 
     @Transactional
-    public void  deletePost(Map<String, String> postId) {
+    public void deletePost(Map<String, String> postId) {
         UUID uuid = UUID.fromString(postId.get("postId"));
         PostModel post = postRepository.getById(uuid);
         postRepository.delete(post);
