@@ -1,16 +1,15 @@
 package br.com.blog.controllers;
 
+import br.com.blog.api.ApiResponse;
 import br.com.blog.models.UserModel;
+import br.com.blog.services.JwtService;
 import br.com.blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -20,31 +19,43 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    JwtService jwtService;
+
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@RequestBody @Valid UserModel userModel){
-        if(userService.existsUsername(userModel).isPresent()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username is already in use!");
+    public ResponseEntity<Object> registerUser(@RequestBody @Valid UserModel userModel) {
+        if (userService.existsUsername(userModel).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse()
+                            .status(HttpStatus.CONFLICT.value())
+                            .message("Username is already in use"));
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(userModel));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse()
+                        .status(HttpStatus.CREATED.value())
+                        .message("User created with success")
+                        .data("user", userService.saveUser(userModel)));
+
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid UserModel userModel) {
+    public ResponseEntity<?> login(@RequestBody @Valid UserModel userModel) {
         UserModel user = userService.verifyUsername(userModel);
 
-        if (user != null) {
-            Boolean passwordCorrect = userService.checkPassword(userModel.getPassword(), user.getPassword());
+        if (user != null && userService.checkPassword(userModel.getPassword(), user.getPassword())) {
+            String token = jwtService.generateToken(user.getUsername());
 
-            if (passwordCorrect) {
-                HttpHeaders httpAuth = userService.createHeaders(user.getUsername() ,userModel.getPassword());
-                ArrayList login = new ArrayList();
-                login.add(httpAuth);
-                login.add("Login success");
-                return ResponseEntity.status(HttpStatus.OK).body(login);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Password incorrect!");
-            }
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ApiResponse()
+                            .status(HttpStatus.OK.value())
+                            .message("Login success")
+                            .data("token", token));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse()
+                        .status(HttpStatus.UNAUTHORIZED.value())
+                        .message("Invalid credentials"));
     }
 }
