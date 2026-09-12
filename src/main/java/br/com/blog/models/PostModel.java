@@ -1,11 +1,10 @@
 package br.com.blog.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,12 +18,11 @@ public class PostModel {
     @Column(nullable = false)
     @Size(max = 100)
     private String title;
-    @Column(nullable = false)
-    @Lob
+
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-YYYY")
-    private LocalDate date;
+    private LocalDateTime localDateTime;
 
     @ManyToOne
     @JoinColumn(name = "userId")
@@ -63,11 +61,11 @@ public class PostModel {
         this.user = user;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDateTime getLocalDateTime() {
+        return localDateTime;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setLocalDateTime(LocalDateTime localDateTime) {
+        this.localDateTime = localDateTime;
     }
 }
