@@ -25,8 +25,7 @@ public class PostController {
 
     @GetMapping("/{userId}")
     ResponseEntity<Object> getAllPostsByIdUser(@PathVariable("userId") String userId){
-
-        return ResponseEntity.status(HttpStatus.OK).build(postService.listAllPostByIdUser(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(postService.listAllPostByIdUser(userId));
     }
 
     @PostMapping()
