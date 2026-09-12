@@ -1,17 +1,17 @@
 package br.com.blog.services;
 
+import br.com.blog.dto.PostResponseDTO;
 import br.com.blog.models.PostModel;
+import br.com.blog.models.UserModel;
 import br.com.blog.repositories.PostRepository;
+import br.com.blog.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class PostService {
@@ -19,41 +19,57 @@ public class PostService {
     @Autowired
     PostRepository postRepository;
 
-    public List<PostModel> listAllPost() {
-        return postRepository.findAll();
-    }
+    @Autowired
+    UserRepository userRepository;
 
-    public List<PostModel> listAllPostByIdUser(String idUser) {
-
-        UUID uuidUser = UUID.fromString(idUser);
-        List<PostModel> listPostUser = new ArrayList<>();
-
-        for (PostModel post : postRepository.findAll()) {
-            if (uuidUser.equals(post.getUser().getUserId())) {
-                listPostUser.add(post);
-            }
-        }
-        return listPostUser;
+    public List<PostResponseDTO> listAllPostByIdUser(UserModel userModel) {
+        return postRepository.findAllByUser_UserId(userModel.getUserId())
+                .stream()
+                .map(PostResponseDTO::new)
+                .toList();
     }
 
     @Transactional
-    public PostModel savePost(PostModel postModel) {
-        postModel.setDate(LocalDate.now());
-        return postRepository.save(postModel);
+    public PostResponseDTO savePost(PostModel postModel, String username) {
+        postModel.setUser(userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found")));
+        postModel.setLocalDateTime(LocalDateTime.now());
+        postRepository.save(postModel);
+
+        return new PostResponseDTO(
+                postModel.getTitle(),
+                postModel.getBody(),
+                postModel.getLocalDateTime(),
+                postModel.getUser().getUserId(),
+                postModel.getUser().getUsername()
+        );
     }
 
     @Transactional
-    public PostModel editPost(PostModel postModel) {
+    public PostResponseDTO editPost(PostModel postModel, String username) {
+        postModel.setUser(userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found")));
+
         PostModel post = postRepository.getById(postModel.getPostId());
-        postModel.setDate(LocalDate.now());
+        postModel.setLocalDateTime(LocalDateTime.now());
         BeanUtils.copyProperties(postModel, post);
-        return postRepository.save(post);
+        postRepository.save(post);
+
+        return new PostResponseDTO(
+                post.getTitle(),
+                post.getBody(),
+                post.getLocalDateTime(),
+                post.getUser().getUserId(),
+                post.getUser().getUsername()
+        );
     }
 
     @Transactional
-    public void deletePost(Map<String, String> postId) {
-        UUID uuid = UUID.fromString(postId.get("postId"));
-        PostModel post = postRepository.getById(uuid);
+    public void deletePost(PostModel postModel, String username) {
+        postModel.setUser(userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found")));
+
+        PostModel post = postRepository.getById(postModel.getPostId());
         postRepository.delete(post);
     }
 }
