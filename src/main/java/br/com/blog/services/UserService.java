@@ -3,16 +3,16 @@ package br.com.blog.services;
 import br.com.blog.dto.UserResponseDTO;
 import br.com.blog.models.UserModel;
 import br.com.blog.repositories.UserRepository;
-import org.apache.tomcat.util.codec.binary.Base64;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class UserService {
@@ -45,9 +45,9 @@ public class UserService {
     public HttpHeaders createHeaders(String username, String password) {
         return new HttpHeaders() {{
             String auth = username + ":" + password;
-            byte[] encodedAuth = Base64.encodeBase64(
-                    auth.getBytes(Charset.forName("US-ASCII")));
-            String authHeader = "Basic " + new String(encodedAuth);
+            String encodedAuth = Base64.getEncoder().encodeToString(
+                    auth.getBytes(StandardCharsets.US_ASCII));
+            String authHeader = "Basic " + encodedAuth;
             set("Authorization", authHeader);
         }};
     }

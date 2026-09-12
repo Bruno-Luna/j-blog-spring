@@ -2,7 +2,6 @@ package br.com.blog.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,12 +12,12 @@ public class UserResponseDTO {
     private String username;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", locale = "pt_BR")
-    private LocalDateTime localDateTime;
+    private LocalDateTime createdAt;
 
-    public UserResponseDTO(UUID userId, String username, LocalDateTime localDateTime) {
+    public UserResponseDTO(UUID userId, String username, LocalDateTime createdAt) {
         this.userId = userId;
         this.username = username;
-        this.localDateTime = localDateTime;
+        this.createdAt = createdAt;
     }
 
     public UUID getUserId() {
@@ -37,11 +36,11 @@ public class UserResponseDTO {
         this.username = username;
     }
 
-    public LocalDateTime getLocalDateTime() {
-        return localDateTime;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setLocalDateTime(LocalDateTime localDateTime) {
-        this.localDateTime = localDateTime;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
