@@ -37,11 +37,10 @@ public class PostService {
         postRepository.save(postModel);
 
         return new PostResponseDTO(
+                postModel.getPostId(),
                 postModel.getTitle(),
                 postModel.getBody(),
-                postModel.getLocalDateTime(),
-                postModel.getUser().getUserId(),
-                postModel.getUser().getUsername()
+                postModel.getLocalDateTime()
         );
     }
 
@@ -56,11 +55,10 @@ public class PostService {
         postRepository.save(post);
 
         return new PostResponseDTO(
+                post.getPostId(),
                 post.getTitle(),
                 post.getBody(),
-                post.getLocalDateTime(),
-                post.getUser().getUserId(),
-                post.getUser().getUsername()
+                post.getLocalDateTime()
         );
     }
 

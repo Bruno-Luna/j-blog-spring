@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public class PostResponseDTO {
 
+    private UUID postId;
+
     private String title;
 
     private String body;
@@ -15,24 +17,26 @@ public class PostResponseDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", locale = "pt_BR")
     private LocalDateTime createdAt;
 
-    private UUID userId;
-
-    private String username;
-
-    public PostResponseDTO(String title, String body, LocalDateTime createdAt, UUID userId, String username) {
+    public PostResponseDTO(UUID postId, String title, String body, LocalDateTime createdAt) {
+        this.postId = postId;
         this.title = title;
         this.body = body;
         this.createdAt = createdAt;
-        this.userId = userId;
-        this.username = username;
     }
 
     public PostResponseDTO(PostModel post) {
+        this.postId = post.getPostId();
         this.title = post.getTitle();
         this.body = post.getBody();
         this.createdAt = post.getLocalDateTime();
-        this.userId = post.getUser().getUserId();
-        this.username = post.getUser().getUsername();
+    }
+
+    public UUID getPostId() {
+        return postId;
+    }
+
+    public void setPostId(UUID postId) {
+        this.postId = postId;
     }
 
     public String getTitle() {
@@ -57,21 +61,5 @@ public class PostResponseDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }
