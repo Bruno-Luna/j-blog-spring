@@ -1,4 +1,4 @@
-package br.com.blog.configs.security;
+package br.com.blog.config.security;
 
 import br.com.blog.services.JwtService;
 import jakarta.servlet.FilterChain;
