@@ -2,6 +2,7 @@ package br.com.blog.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
@@ -17,9 +18,11 @@ public class PostModel {
 
     @Column(nullable = false)
     @Size(max = 100)
+    @NotBlank
     private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
+    @NotBlank
     private String body;
 
     private LocalDateTime localDateTime;
