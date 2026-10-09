@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -62,9 +63,10 @@ public class PostController {
                         .data("post", postService.editPost(postModel, authentication.getName())));
     }
 
-    @DeleteMapping()
-    public ResponseEntity<Object> deletePost(Authentication authentication, @RequestBody @Valid PostModel postModel){
-        postService.deletePost(postModel, authentication.getName());
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Object> deletePost(Authentication authentication, @PathVariable("postId") UUID postId){
+
+        postService.deletePost(postId, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse()
