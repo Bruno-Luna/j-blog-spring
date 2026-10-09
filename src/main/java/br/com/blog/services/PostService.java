@@ -19,11 +19,13 @@ import java.util.UUID;
 @Service
 public class PostService {
 
-    @Autowired
-    PostRepository postRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
+    }
 
     public List<PostResponseDTO> listAllPostByIdUser(UserModel userModel) {
         return postRepository.findAllByUser_UserId(userModel.getUserId())
