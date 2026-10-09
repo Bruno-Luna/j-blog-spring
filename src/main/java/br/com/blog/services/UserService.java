@@ -25,7 +25,6 @@ public class UserService {
     @Transactional
     public UserResponseDTO saveUser(UserModel userModel) {
         userModel.setPassword(crypt.encode(userModel.getPassword()));
-        userModel.setLocalDateTime(LocalDateTime.now());
         userRepository.save(userModel);
         return new UserResponseDTO(userModel.getUserId(), userModel.getUsername(), userModel.getLocalDateTime());
     }

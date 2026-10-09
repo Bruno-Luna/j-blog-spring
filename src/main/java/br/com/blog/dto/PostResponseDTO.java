@@ -15,20 +15,20 @@ public class PostResponseDTO {
     private String body;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", locale = "pt_BR")
-    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public PostResponseDTO(UUID postId, String title, String body, LocalDateTime createdAt) {
+    public PostResponseDTO(UUID postId, String title, String body, LocalDateTime updatedAt) {
         this.postId = postId;
         this.title = title;
         this.body = body;
-        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public PostResponseDTO(PostModel post) {
         this.postId = post.getPostId();
         this.title = post.getTitle();
         this.body = post.getBody();
-        this.createdAt = post.getLocalDateTime();
+        this.updatedAt = post.getUpdatedAt();
     }
 
     public UUID getPostId() {
@@ -55,11 +55,11 @@ public class PostResponseDTO {
         this.body = body;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

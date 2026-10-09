@@ -1,11 +1,14 @@
 package br.com.blog.controllers;
 
 import br.com.blog.api.ApiResponse;
+import br.com.blog.dto.PostRequestDTO;
 import br.com.blog.dto.PostResponseDTO;
 import br.com.blog.models.PostModel;
 import br.com.blog.models.UserModel;
 import br.com.blog.repositories.UserRepository;
 import br.com.blog.services.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
+@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping("/post")
 public class PostController {
 
@@ -43,28 +47,30 @@ public class PostController {
 
     @PostMapping()
     public ResponseEntity<Object> insertPost(Authentication authentication,
-                                             @RequestBody @Valid PostModel postModel){
+                                             @RequestBody @Valid PostRequestDTO postRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse()
                         .status(HttpStatus.CREATED.value())
                         .message("Post created with success")
-                        .data("post", postService.savePost(postModel, authentication.getName())));
+                        .data("post", postService.savePost(postRequestDTO, authentication.getName())));
     }
 
-    @PutMapping()
+    @PutMapping("/{postId}")
     public ResponseEntity<Object> editPost(Authentication authentication,
-                                           @RequestBody @Valid PostModel postModel){
+                                           @PathVariable("postId") UUID postId,
+                                           @RequestBody PostRequestDTO postRequestDTO){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse()
                         .status(HttpStatus.OK.value())
                         .message("Post edited with success")
-                        .data("post", postService.editPost(postModel, authentication.getName())));
+                        .data("post", postService.editPost(postId, postRequestDTO, authentication.getName())));
     }
 
-    @DeleteMapping()
-    public ResponseEntity<Object> deletePost(Authentication authentication, @RequestBody @Valid PostModel postModel){
-        postService.deletePost(postModel, authentication.getName());
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Object> deletePost(Authentication authentication, @PathVariable("postId") UUID postId){
+
+        postService.deletePost(postId, authentication.getName());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse()

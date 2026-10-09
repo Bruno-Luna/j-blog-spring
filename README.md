@@ -1,213 +1,214 @@
 # J-Blog Spring API 🚀
 
-Uma API RESTful completa para gerenciamento de um blog, desenvolvida com o ecossistema Spring Boot. A aplicação provê funcionalidades de criação de usuários, autenticação via JWT, além de um sistema de CRUD (Create, Read, Update, Delete) de posts.
+API REST para gerenciamento de usuários e posts, desenvolvida com Spring Boot. O projeto oferece cadastro, login com JWT e operações autenticadas para criação, consulta, edição e exclusão de posts.
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias
 
-O projeto foi construído utilizando as seguintes tecnologias e frameworks:
+- Java 21
+- Spring Boot 3.3.4
+- Spring Web, Spring Data JPA, Spring Validation e Spring Security
+- JJWT 0.11.5
+- PostgreSQL
+- Maven Wrapper
 
-* **Java 21**: Linguagem de programação principal.
-* **Spring Boot 3.3.4**: Framework para facilitação do setup e desenvolvimento.
-* **Spring Data JPA**: Abstração para persistência de dados.
-* **Spring Security**: Gerenciamento de autenticação e controle de acesso.
-* **JSON Web Tokens (JWT)**: Para autenticação stateless das rotas protegidas.
-* **PostgreSQL**: Banco de dados relacional.
-* **Maven**: Gerenciador de dependências e build.
+## Pré-requisitos
 
-## ⚙️ Pré-requisitos
+- JDK 21 configurado em `JAVA_HOME`
+- PostgreSQL em execução na porta `5432`
+- Maven instalado é opcional, pois o projeto inclui `mvnw` e `mvnw.cmd`
 
-Para rodar a aplicação localmente, certifique-se de ter os seguintes componentes instalados:
+## Configuração local
 
-* [Java JDK 21](https://www.oracle.com/java/technologies/downloads/#java21) ou superior.
-* [Maven](https://maven.apache.org/) (Opcional, pois o projeto possui o Maven Wrapper `mvnw`).
-* [PostgreSQL](https://www.postgresql.org/) rodando localmente na porta padrão (`5432`).
+1. Clone o repositório e entre na pasta:
 
-## 🚀 Configurando e Executando
+   ```powershell
+   git clone https://github.com/Bruno-Luna/j-blog-spring.git
+   Set-Location j-blog-spring
+   ```
 
-### 1. Clonar o repositório
+2. Crie o banco de dados usado pela aplicação:
 
-Caso ainda não o tenha feito, faça o clone do projeto (se aplicável):
+   ```sql
+   CREATE DATABASE "blog-db";
+   ```
 
-```bash
-git clone <url-do-repositorio>
-cd j-blog-spring
+3. Revise `src/main/resources/application.properties`:
+
+   ```properties
+   server.port=8085
+   spring.datasource.url=jdbc:postgresql://localhost:5432/blog-db
+   spring.datasource.username=postgres
+   spring.datasource.password=root
+   jwt.secret=uma-chave-com-pelo-menos-32-caracteres
+   ```
+
+   A aplicação usa `spring.jpa.hibernate.ddl-auto=update`, portanto o Hibernate atualiza o esquema automaticamente durante o desenvolvimento. Substitua a senha do banco e o segredo JWT por valores seguros; não versione credenciais reais.
+
+## Executar
+
+No Windows PowerShell:
+
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
 
-### 2. Configurar o Banco de Dados
+No Linux ou macOS:
 
-Crie um banco de dados no PostgreSQL chamado `blog-db`:
-
-```sql
-CREATE DATABASE "blog-db";
-```
-
-### 3. Configurar o `application.properties`
-
-Verifique o arquivo `src/main/resources/application.properties` e certifique-se de que as credenciais do banco de dados e a secret do JWT correspondem ao seu ambiente de desenvolvimento local:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/blog-db
-spring.datasource.username=postgres
-spring.datasource.password=root
-
-# Secret para geração dos tokens JWT
-jwt.secret=uma-string-bem-grande-e-segura-para-chave-jwt-2026
-```
-
-O arquivo atual também usa `spring.jpa.hibernate.ddl-auto=update` e logs detalhados de HTTP, Spring Security e SQL. Esses valores são úteis durante o desenvolvimento, mas devem ser revisados antes de um ambiente de produção. Não use a senha do banco e a chave JWT de exemplo em produção.
-
-### 4. Compilar e Iniciar a Aplicação
-
-Utilize o Maven Wrapper já incluído no projeto para rodar a aplicação facilmente:
-
-**Linux / macOS:**
 ```bash
 ./mvnw spring-boot:run
 ```
 
-**Windows:**
-```cmd
-mvnw.cmd spring-boot:run
-```
+A API fica disponível em `http://localhost:8085`.
 
-A API estará disponível e escutando por padrão em `http://localhost:8080`.
+## Autenticação
 
-## 🌐 Endpoints da API
-
-Abaixo estão listados os principais endpoints disponíveis na aplicação. As rotas de usuário são públicas; as rotas de posts exigem um token JWT no header `Authorization: Bearer <token>`.
-
-### 👤 Usuários (`/user`)
-
-* `POST /user/register`: Registra um novo usuário no sistema.
-* `POST /user/login`: Autentica o usuário e retorna o Token JWT.
-
-### 📝 Posts (`/post`)
-
-* `GET /post/me/posts`: Retorna os posts do usuário autenticado.
-* `POST /post`: Cria um novo post.
-* `PUT /post`: Edita um post existente.
-* `DELETE /post`: Exclui um post através do seu `postId`.
-
-### Criar um post com o token JWT
-
-Depois de fazer login em `POST /user/login`, copie o token retornado em `data.token` e envie-o no header `Authorization`. O usuário do post é identificado automaticamente pelo token; não envie `user`, `userId`, `postId` ou `localDateTime` no cadastro:
-
-```powershell
-curl.exe -X POST http://localhost:8080/post `
-  -H "Authorization: Bearer SEU_TOKEN_JWT" `
-  -H "Content-Type: application/json" `
-  -d '{"title":"Meu primeiro post","body":"Conteúdo do post"}'
-```
-
-O endpoint retorna `201 Created` e define `postId` e `localDateTime` automaticamente. Sem token, com token expirado ou com token inválido, a requisição é rejeitada pelo Spring Security (normalmente `403 Forbidden` com a configuração atual).
-
-### Exemplos de cadastro e login
-
-#### Registrar usuário
-
-```http
-POST /user/register
-Content-Type: application/json
-
-{
-  "username": "seu-nome",
-  "password": "senha-segura"
-}
-```
-
-Retorna `201 Created`. O username duplicado retorna `409 Conflict`.
-
-#### Fazer login
-
-```http
-POST /user/login
-Content-Type: application/json
-
-{
-  "username": "seu-nome",
-  "password": "senha-segura"
-}
-```
-
-A resposta bem-sucedida retorna `200 OK` com o token em `data.token`. O token JWT expira após 30 minutos.
-
-### Consultar, editar e excluir posts
-
-Todas as operações abaixo exigem o header:
+`POST /user/register` e `POST /user/login` são públicos. Todas as rotas de posts exigem:
 
 ```http
 Authorization: Bearer SEU_TOKEN_JWT
 ```
 
-Para consultar os posts do usuário autenticado:
+O token é assinado com `jwt.secret`, usa o username como subject e expira 30 minutos após a emissão. Senhas são armazenadas com BCrypt e as sessões são stateless.
 
-```powershell
-curl.exe http://localhost:8080/post/me/posts `
-  -H "Authorization: Bearer SEU_TOKEN_JWT"
+## Endpoints
+
+### Usuários
+
+#### `POST /user/register`
+
+Cria um usuário. O corpo deve conter `username` e `password`:
+
+```json
+{
+  "username": "seu-nome",
+  "password": "sua-senha"
+}
 ```
 
-Se não houver posts, a API retorna `204 No Content`.
+Retorna `201 Created` com os dados públicos do usuário (`userId`, `username` e `createdAt`). Se o username já existir, retorna `409 Conflict`.
 
-Para editar, envie o `postId` existente e os novos dados:
+#### `POST /user/login`
+
+Autentica um usuário:
+
+```json
+{
+  "username": "seu-nome",
+  "password": "sua-senha"
+}
+```
+
+Retorna `200 OK` com o token em `data.token`. Credenciais inválidas retornam `401 Unauthorized`.
+
+### Posts
+
+Todas as rotas a seguir exigem JWT.
+
+#### `GET /post/me/posts`
+
+Lista os posts do usuário autenticado. Retorna `200 OK` com uma lista de objetos contendo `postId`, `title`, `body` e `createdAt`. Se não houver posts, retorna `204 No Content`.
+
+#### `POST /post`
+
+Cria um post. O usuário, `postId` e data são definidos pelo servidor:
+
+```json
+{
+  "title": "Meu primeiro post",
+  "body": "Conteúdo do post"
+}
+```
+
+Retorna `201 Created` com o post criado dentro de `data.post`. `title` é obrigatório e aceita até 100 caracteres; `body` também é obrigatório.
+
+Exemplo no PowerShell:
 
 ```powershell
-curl.exe -X PUT http://localhost:8080/post `
+curl.exe -X POST http://localhost:8085/post `
   -H "Authorization: Bearer SEU_TOKEN_JWT" `
   -H "Content-Type: application/json" `
-  -d '{"postId":"UUID_DO_POST","title":"Título atualizado","body":"Conteúdo atualizado"}'
+  -d '{"title":"Meu primeiro post","body":"Conteúdo do post"}'
 ```
 
-Para excluir um post:
+#### `PUT /post`
 
-```powershell
-curl.exe -X DELETE http://localhost:8080/post `
-  -H "Authorization: Bearer SEU_TOKEN_JWT" `
-  -H "Content-Type: application/json" `
-  -d '{"postId":"UUID_DO_POST"}'
+Edita um post pelo UUID. Envie `postId`, `title` e `body`:
+
+```json
+{
+  "postId": "UUID_DO_POST",
+  "title": "Título atualizado",
+  "body": "Conteúdo atualizado"
+}
 ```
 
-O `postId` deve ser um UUID válido. O título aceita no máximo 100 caracteres. O campo `user` não precisa ser enviado: o proprietário é obtido pelo usuário autenticado no JWT.
+Retorna `200 OK` com o post atualizado em `data.post`.
 
-As respostas de posts usam os campos `title`, `body`, `createdAt`, `userId` e `username`. O campo `createdAt` é formatado como `dd/MM/yyyy HH:mm:ss`. Atualmente, editar ou excluir um post exige autenticação, mas a implementação do serviço ainda deve validar a propriedade do post quando essa restrição for necessária.
+#### `DELETE /post`
 
-### Autenticação e segurança
+Exclui um post pelo UUID:
 
-`POST /user/register` e `POST /user/login` são públicos. As demais rotas exigem um JWT válido no header `Authorization: Bearer ...`; sem autenticação, a configuração atual normalmente responde `403 Forbidden`. A aplicação usa sessões stateless, BCrypt para armazenar senhas e CORS liberado para qualquer origem nos controllers. Restrinja o CORS e forneça `jwt.secret` por configuração externa antes de publicar a aplicação.
+```json
+{
+  "postId": "UUID_DO_POST"
+}
+```
 
-### Testes e build
+Retorna `200 OK` com a mensagem de confirmação.
 
-O projeto possui atualmente um teste de carregamento do contexto Spring. Antes de executar os comandos, configure `JAVA_HOME` apontando para um JDK 21.
+## Respostas e erros
 
-**Windows PowerShell:**
+Respostas de operação usam o formato genérico:
+
+```json
+{
+  "status": 201,
+  "message": "Post created with success",
+  "post": {
+    "postId": "UUID_DO_POST",
+    "title": "Meu primeiro post",
+    "body": "Conteúdo do post",
+    "createdAt": "22/09/2026 14:30:00"
+  }
+}
+```
+
+As datas são formatadas como `dd/MM/yyyy HH:mm:ss`. Erros de validação retornam `400 Bad Request`; acesso sem autenticação retorna `401 Unauthorized`; acesso negado retorna `403 Forbidden`; e username duplicado retorna `409 Conflict`.
+
+## Testes e build
+
+O projeto possui um teste de carregamento do contexto Spring:
 
 ```powershell
 .\mvnw.cmd clean test
+```
+
+Para gerar o artefato sem executar os testes:
+
+```powershell
 .\mvnw.cmd clean package -DskipTests
 ```
 
-**Linux / macOS:**
+## Estrutura do projeto
 
-```bash
-./mvnw clean test
-./mvnw clean package -DskipTests
-```
+Em `src/main/java/br/com/blog`:
 
-## 📁 Estrutura de Diretórios
+- `api/`: formato genérico das respostas (`ApiResponse`).
+- `config/security/`: configuração do Spring Security, filtro JWT e carregamento de usuários.
+- `config/exceptions/`: tratamento global de erros de validação e argumentos.
+- `controllers/`: endpoints REST de usuários e posts.
+- `dto/`: objetos de resposta da API.
+- `models/`: entidades JPA `UserModel` e `PostModel`.
+- `repositories/`: repositórios Spring Data JPA.
+- `services/`: regras de negócio e geração/validação de JWT.
 
-A estrutura do código fonte principal (`src/main/java/br/com/blog`) está organizada de forma coesa:
+## Pontos de atenção
 
-* `api/`: Modelos genéricos de resposta das APIs (`ApiResponse`).
-* `configs/security/`: Configurações do Spring Security, filtro de JWT, etc.
-* `controllers/`: Controladores REST, lidam com as requisições e respostas HTTP.
-* `dto/`: Objetos de Transferência de Dados, isolando entidades das chamadas externas.
-* `models/`: Entidades JPA representando as tabelas do banco de dados (`User`, `Post`).
-* `repositories/`: Interfaces do Spring Data JPA comunicando diretamente com o BD.
-* `services/`: Regras de negócio, serviços de geração/validação de JWT e serviços principais de usuários/posts.
+- O CORS está aberto para qualquer origem nos controllers; restrinja-o antes de publicar a aplicação.
+- O segredo JWT e as credenciais do banco estão no arquivo de propriedades padrão; prefira configuração externa em ambientes reais.
+- `ddl-auto=update` e os logs de requisições estão voltados para desenvolvimento.
+- A implementação atual autentica as operações de edição e exclusão, mas o serviço ainda não verifica explicitamente se o post informado pertence ao usuário autenticado. Essa regra deve ser reforçada antes de usar a API em produção.
 
-## 📄 Licença
-
-Este projeto está disponível sob a [Licença MIT](LICENSE), uma licença open source permissiva que permite uso, cópia, modificação, distribuição e sublicenciamento, desde que o aviso de copyright e a licença sejam mantidos.
-
-## 👨‍💻 Desenvolvido por
+## Autor
 
 [Bruno Luna](https://github.com/Bruno-Luna) · [Repositório no GitHub](https://github.com/Bruno-Luna/j-blog-spring)
