@@ -2,6 +2,8 @@ package br.com.blog.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,6 +13,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "TB_USER")
+@EntityListeners(AuditingEntityListener.class)
 public class UserModel implements UserDetails, Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -24,6 +27,7 @@ public class UserModel implements UserDetails, Serializable {
     @Column(nullable = false)
     private String password;
 
+    @LastModifiedDate
     private LocalDateTime localDateTime;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
