@@ -2,7 +2,6 @@ package br.com.blog.config.security;
 
 import br.com.blog.api.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
