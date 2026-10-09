@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @ControllerAdvice
@@ -38,4 +39,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiResponse> handleResponseStatus(ResponseStatusException ex) {
+        ApiResponse response = new ApiResponse()
+                .status(ex.getStatusCode().value())
+                .message(ex.getReason());
+
+        return ResponseEntity.status(ex.getStatusCode()).body(response);
+    }
 }
