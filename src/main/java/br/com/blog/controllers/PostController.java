@@ -25,11 +25,13 @@ import java.util.UUID;
 @RequestMapping("/post")
 public class PostController {
 
-    @Autowired
-    PostService postService;
+    private final PostService postService;
+    private final UserRepository userRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    public PostController(PostService postService, UserRepository userRepository) {
+        this.postService = postService;
+        this.userRepository = userRepository;
+    }
 
     @GetMapping("/me/posts")
     public ResponseEntity<Object> getMyPosts(Authentication authentication) {

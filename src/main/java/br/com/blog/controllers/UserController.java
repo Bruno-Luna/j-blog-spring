@@ -17,11 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+    private final JwtService jwtService;
 
-    @Autowired
-    JwtService jwtService;
+    public UserController(UserService userService, JwtService jwtService) {
+        this.userService = userService;
+        this.jwtService = jwtService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody @Valid UserModel userModel) {

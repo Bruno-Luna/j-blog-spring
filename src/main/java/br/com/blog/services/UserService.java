@@ -17,10 +17,12 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    @Autowired
-    UserRepository userRepository;
-
     BCryptPasswordEncoder crypt = new BCryptPasswordEncoder();
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Transactional
     public UserResponseDTO saveUser(UserModel userModel) {
