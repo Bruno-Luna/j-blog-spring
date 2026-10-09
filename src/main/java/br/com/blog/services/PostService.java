@@ -1,6 +1,6 @@
 package br.com.blog.services;
 
-import br.com.blog.api.ApiResponse;
+import br.com.blog.dto.PostRequestDTO;
 import br.com.blog.dto.PostResponseDTO;
 import br.com.blog.models.PostModel;
 import br.com.blog.models.UserModel;
@@ -10,11 +10,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,36 +33,33 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDTO savePost(PostModel postModel, String username) {
-        postModel.setUser(userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found")));
-        postModel.setLocalDateTime(LocalDateTime.now());
-        postRepository.save(postModel);
+    public PostResponseDTO savePost(PostRequestDTO postRequestDTO, String username) {
+        UserModel userModel = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found"));
 
-        return new PostResponseDTO(
-                postModel.getPostId(),
-                postModel.getTitle(),
-                postModel.getBody(),
-                postModel.getLocalDateTime()
-        );
+        PostModel postModel = new PostModel();
+        BeanUtils.copyProperties(postRequestDTO, postModel);
+        postModel.setUser(userModel);
+        postModel = postRepository.save(postModel);
+
+        return getPostResponseDTO(postModel);
     }
 
     @Transactional
-    public PostResponseDTO editPost(PostModel postModel, String username) {
-        postModel.setUser(userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found")));
+    public PostResponseDTO editPost(UUID postId, PostRequestDTO postRequestDTO, String username) {
 
-        PostModel post = postRepository.getById(postModel.getPostId());
-        postModel.setLocalDateTime(LocalDateTime.now());
-        BeanUtils.copyProperties(postModel, post);
-        postRepository.save(post);
+        PostModel postSearch = postRepository.getById(postId);
 
-        return new PostResponseDTO(
-                post.getPostId(),
-                post.getTitle(),
-                post.getBody(),
-                post.getLocalDateTime()
-        );
+        if(postSearch.getUser().getUsername().equals(username)) {
+            BeanUtils.copyProperties(postRequestDTO, postSearch);
+            postSearch = postRepository.save(postSearch);
+
+            return getPostResponseDTO(postSearch);
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
+        }
     }
 
     @Transactional
@@ -73,9 +68,18 @@ public class PostService {
 
         if(postSearch.getUser().getUsername().equals(username)) {
             postRepository.delete(postSearch);
-        }else {
+        } else {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN, "You are not authorized to delete this post");
         }
+    }
+
+    private static PostResponseDTO getPostResponseDTO(PostModel postModel) {
+        return new PostResponseDTO(
+                postModel.getPostId(),
+                postModel.getTitle(),
+                postModel.getBody(),
+                postModel.getUpdatedAt()
+        );
     }
 }
