@@ -12,8 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PostService {
@@ -31,6 +33,55 @@ public class PostService {
                 .stream()
                 .map(PostResponseDTO::new)
                 .toList();
+    }
+
+    public List<PostResponseDTO> findPostsByFilters(String title, String body, String username) {
+
+        Set<PostResponseDTO> postResponseDTOSet = new HashSet<>();
+
+        if (Objects.nonNull(title) && !title.isEmpty()) {
+            postResponseDTOSet.addAll(
+                    postRepository.findByTitleContainingIgnoreCase(title)
+                            .stream()
+                            .map(PostResponseDTO::new)
+                            .toList()
+            );
+        }
+
+        if (Objects.nonNull(body) && !body.isEmpty()) {
+            postResponseDTOSet.addAll(
+                    postRepository.findByBodyContainingIgnoreCase(body)
+                            .stream()
+                            .map(PostResponseDTO::new)
+                            .toList()
+            );
+        }
+
+        if (Objects.nonNull(username) && !username.isEmpty()) {
+            postResponseDTOSet.addAll(
+                    postRepository.findByUser_UsernameContainingIgnoreCase(username)
+                            .stream()
+                            .map(PostResponseDTO::new)
+                            .toList()
+            );
+        }
+
+        return getPostResponseDTOS(title, body, username);
+    }
+
+    private List<PostResponseDTO> getPostResponseDTOS(String title, String body, String username) {
+        List<PostResponseDTO> postResponseDTOList = Stream.of(
+                        postRepository.findByTitleContainingIgnoreCase(title).stream(),
+                        postRepository.findByBodyContainingIgnoreCase(body).stream(),
+                        postRepository.findByUser_UsernameContainingIgnoreCase(username).stream()
+                )
+                .flatMap(Function.identity()) // junta todos os streams
+                .map(PostResponseDTO::new)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(PostResponseDTO::getPostId, dto -> dto, (a, b) -> a),
+                        map -> new ArrayList<>(map.values())
+                ));
+        return postResponseDTOList;
     }
 
     @Transactional
@@ -80,7 +131,8 @@ public class PostService {
                 postModel.getPostId(),
                 postModel.getTitle(),
                 postModel.getBody(),
-                postModel.getUpdatedAt()
+                postModel.getUpdatedAt(),
+                postModel.getUser().getUsername()
         );
     }
 }

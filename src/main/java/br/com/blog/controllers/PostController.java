@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @SecurityRequirement(name = "Bearer Authentication")
@@ -36,6 +37,23 @@ public class PostController {
                 .orElseThrow(() -> new IllegalArgumentException("Authenticated user was not found"));
 
         List<PostResponseDTO> posts = postService.listAllPostByIdUser(user);
+
+        if (posts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/by-filters")
+    public ResponseEntity<Object> findPostsByFilters(Authentication authentication,
+                                                @RequestParam(name = "title", required = false) String title,
+                                                @RequestParam(name = "body", required = false) String body,
+                                                @RequestParam(name = "username", required = false) String username) {
+        UserModel user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user was not found"));
+
+        List<PostResponseDTO> posts = postService.findPostsByFilters(title, body, username);
 
         if (posts.isEmpty()) {
             return ResponseEntity.noContent().build();
