@@ -1,5 +1,6 @@
 package br.com.blog.services;
 
+import br.com.blog.dto.UserRequestDTO;
 import br.com.blog.dto.UserResponseDTO;
 import br.com.blog.models.UserModel;
 import br.com.blog.repositories.UserRepository;
@@ -23,18 +24,21 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO saveUser(UserModel userModel) {
-        userModel.setPassword(crypt.encode(userModel.getPassword()));
+    public UserResponseDTO saveUser(UserRequestDTO userRequestDTO) {
+
+        UserModel userModel = new UserModel();
+        userModel.setUsername(userRequestDTO.getUsername());
+        userModel.setPassword(crypt.encode(userRequestDTO.getPassword()));
         userRepository.save(userModel);
         return new UserResponseDTO(userModel.getUserId(), userModel.getUsername(), userModel.getLocalDateTime());
     }
 
-    public Optional<UserModel> existsUsername(UserModel userModel) {
-        return userRepository.findByUsername(userModel.getUsername());
+    public Optional<UserModel> existsUsername(UserRequestDTO userRequestDTO) {
+        return userRepository.findByUsername(userRequestDTO.getUsername());
     }
 
-    public UserModel verifyUsername(UserModel userModel) {
-        return userRepository.getByUsername(userModel.getUsername());
+    public UserModel verifyUsername(UserRequestDTO userRequestDTO) {
+        return userRepository.getByUsername(userRequestDTO.getUsername());
     }
 
     public Boolean checkPassword(String passwordEntered, String currentPassword) {
