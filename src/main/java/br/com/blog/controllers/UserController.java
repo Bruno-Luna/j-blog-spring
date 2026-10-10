@@ -49,7 +49,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponse()
                             .status(HttpStatus.OK.value())
-                            .message("Login success")
+                            .message("Login successful")
                             .data("token", token));
         }
 

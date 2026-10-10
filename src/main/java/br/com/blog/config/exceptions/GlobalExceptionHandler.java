@@ -40,10 +40,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        logger.error("Erro de argumento inválido", ex);
+        logger.error("Invalid argument error", ex);
         ApiResponse response = new ApiResponse()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("O ID informado não pode ser nulo ou em branco");
+                .message("The provided ID cannot be null or blank");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
