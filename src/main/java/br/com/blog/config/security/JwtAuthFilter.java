@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (RuntimeException ignored) {
-                // Tokens inválidos ou expirados seguem sem autenticação e resultam em 401.
+                // Invalid or expired tokens remain unauthenticated and result in 401.
             }
         }
         chain.doFilter(request, response);

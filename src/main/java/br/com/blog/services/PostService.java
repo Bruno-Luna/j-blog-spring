@@ -8,7 +8,6 @@ import br.com.blog.repositories.PostRepository;
 import br.com.blog.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -60,7 +59,7 @@ public class PostService {
             return getPostResponseDTO(postSearch);
         } else {
             throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
+                    HttpStatus.FORBIDDEN, "You are not allowed to update this post");
         }
     }
 
@@ -72,7 +71,7 @@ public class PostService {
             postRepository.delete(postSearch);
         } else {
             throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, "You are not authorized to delete this post");
+                    HttpStatus.FORBIDDEN, "You are not allowed to delete this post");
         }
     }
 

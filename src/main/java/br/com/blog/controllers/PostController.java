@@ -3,14 +3,11 @@ package br.com.blog.controllers;
 import br.com.blog.api.ApiResponse;
 import br.com.blog.dto.PostRequestDTO;
 import br.com.blog.dto.PostResponseDTO;
-import br.com.blog.models.PostModel;
 import br.com.blog.models.UserModel;
 import br.com.blog.repositories.UserRepository;
 import br.com.blog.services.PostService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -36,7 +33,7 @@ public class PostController {
     @GetMapping("/me/posts")
     public ResponseEntity<Object> getMyPosts(Authentication authentication) {
         UserModel user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user was not found"));
 
         List<PostResponseDTO> posts = postService.listAllPostByIdUser(user);
 
@@ -53,7 +50,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse()
                         .status(HttpStatus.CREATED.value())
-                        .message("Post created with success")
+                        .message("Post created successfully")
                         .data("post", postService.savePost(postRequestDTO, authentication.getName())));
     }
 
@@ -65,7 +62,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse()
                         .status(HttpStatus.OK.value())
-                        .message("Post edited with success")
+                        .message("Post updated successfully")
                         .data("post", postService.editPost(postId, postRequestDTO, authentication.getName())));
     }
 

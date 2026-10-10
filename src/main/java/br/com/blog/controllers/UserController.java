@@ -1,13 +1,11 @@
 package br.com.blog.controllers;
 
 import br.com.blog.api.ApiResponse;
+import br.com.blog.dto.UserRequestDTO;
 import br.com.blog.models.UserModel;
 import br.com.blog.services.JwtService;
 import br.com.blog.services.UserService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +24,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@RequestBody @Valid UserModel userModel) {
-        if (userService.existsUsername(userModel).isPresent()) {
+    public ResponseEntity<Object> registerUser(@RequestBody @Valid UserRequestDTO userRequestDTO) {
+        if (userService.existsUsername(userRequestDTO).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ApiResponse()
                             .status(HttpStatus.CONFLICT.value())
@@ -37,22 +35,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse()
                         .status(HttpStatus.CREATED.value())
-                        .message("User created with success")
-                        .data("user", userService.saveUser(userModel)));
-
+                        .message("User created successfully")
+                        .data("user", userService.saveUser(userRequestDTO)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid UserModel userModel) {
-        UserModel user = userService.verifyUsername(userModel);
+    public ResponseEntity<?> login(@RequestBody @Valid UserRequestDTO userRequestDTO) {
+        UserModel user = userService.verifyUsername(userRequestDTO);
 
-        if (user != null && userService.checkPassword(userModel.getPassword(), user.getPassword())) {
+        if (user != null && userService.checkPassword(userRequestDTO.getPassword(), user.getPassword())) {
             String token = jwtService.generateToken(user.getUsername());
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponse()
                             .status(HttpStatus.OK.value())
-                            .message("Login success")
+                            .message("Authentication successful")
                             .data("token", token));
         }
 

@@ -1,6 +1,7 @@
 package br.com.blog.api;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ApiResponse extends LinkedHashMap {
 
@@ -16,6 +17,11 @@ public class ApiResponse extends LinkedHashMap {
 
     public ApiResponse data(String key, Object value) {
         this.put(key, value);
+        return this;
+    }
+
+    public ApiResponse errors(Map<String, String> errors) {
+        this.put("errors", errors);
         return this;
     }
 }
