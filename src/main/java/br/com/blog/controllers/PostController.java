@@ -34,15 +34,11 @@ public class PostController {
     @GetMapping("/me/posts")
     public ResponseEntity<Object> getMyPosts(Authentication authentication) {
         UserModel user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user was not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<PostResponseDTO> posts = postService.listAllPostByIdUser(user);
 
-        if (posts.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(posts);
+        return posts.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(posts);
     }
 
     @GetMapping("/by-filters")
@@ -50,16 +46,10 @@ public class PostController {
                                                 @RequestParam(name = "title", required = false) String title,
                                                 @RequestParam(name = "body", required = false) String body,
                                                 @RequestParam(name = "username", required = false) String username) {
-        UserModel user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user was not found"));
 
         List<PostResponseDTO> posts = postService.findPostsByFilters(title, body, username);
 
-        if (posts.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(posts);
+        return posts.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(posts);
     }
 
     @PostMapping()
