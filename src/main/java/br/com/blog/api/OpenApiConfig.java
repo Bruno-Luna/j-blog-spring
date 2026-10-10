@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     private static final String TITLE_BLOG = "Blog API";
-    private static final String VERSION_BLOG = "0.2.0";
+    private static final String VERSION_BLOG = "0.3.0";
 
     @Bean
     public OpenAPI customOpenAPI() {
