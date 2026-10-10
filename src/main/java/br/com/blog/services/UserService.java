@@ -5,22 +5,20 @@ import br.com.blog.dto.UserResponseDTO;
 import br.com.blog.models.UserModel;
 import br.com.blog.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
-    BCryptPasswordEncoder crypt = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -28,7 +26,7 @@ public class UserService {
 
         UserModel userModel = new UserModel();
         userModel.setUsername(userRequestDTO.getUsername());
-        userModel.setPassword(crypt.encode(userRequestDTO.getPassword()));
+        userModel.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
         userRepository.save(userModel);
         return new UserResponseDTO(userModel.getUserId(), userModel.getUsername(), userModel.getLocalDateTime());
     }
@@ -42,16 +40,7 @@ public class UserService {
     }
 
     public Boolean checkPassword(String passwordEntered, String currentPassword) {
-        return crypt.matches(passwordEntered, currentPassword);
+        return passwordEncoder.matches(passwordEntered, currentPassword);
     }
 
-    public HttpHeaders createHeaders(String username, String password) {
-        return new HttpHeaders() {{
-            String auth = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(
-                    auth.getBytes(StandardCharsets.US_ASCII));
-            String authHeader = "Basic " + encodedAuth;
-            set("Authorization", authHeader);
-        }};
-    }
 }
