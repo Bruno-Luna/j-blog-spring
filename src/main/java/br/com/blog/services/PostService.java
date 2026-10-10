@@ -59,7 +59,7 @@ public class PostService {
             return getPostResponseDTO(postSearch);
         } else {
             throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, "You are not authorized to edit this post");
+                    HttpStatus.FORBIDDEN, "You are not allowed to update this post");
         }
     }
 
@@ -71,7 +71,7 @@ public class PostService {
             postRepository.delete(postSearch);
         } else {
             throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, "You are not authorized to delete this post");
+                    HttpStatus.FORBIDDEN, "You are not allowed to delete this post");
         }
     }
 

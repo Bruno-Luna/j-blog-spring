@@ -23,11 +23,11 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO saveUser(UserRequestDTO userRequestDTO) {
-
         UserModel userModel = new UserModel();
         userModel.setUsername(userRequestDTO.getUsername());
         userModel.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
         userRepository.save(userModel);
+
         return new UserResponseDTO(userModel.getUserId(), userModel.getUsername(), userModel.getLocalDateTime());
     }
 

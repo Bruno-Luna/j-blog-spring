@@ -33,7 +33,7 @@ public class PostController {
     @GetMapping("/me/posts")
     public ResponseEntity<Object> getMyPosts(Authentication authentication) {
         UserModel user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user was not found"));
 
         List<PostResponseDTO> posts = postService.listAllPostByIdUser(user);
 
@@ -50,7 +50,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse()
                         .status(HttpStatus.CREATED.value())
-                        .message("Post created with success")
+                        .message("Post created successfully")
                         .data("post", postService.savePost(postRequestDTO, authentication.getName())));
     }
 
@@ -62,7 +62,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse()
                         .status(HttpStatus.OK.value())
-                        .message("Post edited with success")
+                        .message("Post updated successfully")
                         .data("post", postService.editPost(postId, postRequestDTO, authentication.getName())));
     }
 

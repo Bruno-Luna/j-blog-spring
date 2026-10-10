@@ -44,7 +44,7 @@ public class WebSecurityConfig {
                         .authenticationEntryPoint((request, response, authException) -> {
                             ApiResponse apiResponse = new ApiResponse()
                                     .status(HttpStatus.UNAUTHORIZED.value())
-                                    .message("Não autenticado");
+                                    .message("Authentication required");
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
                             response.setContentType("application/json;charset=UTF-8");
                             response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
@@ -52,7 +52,7 @@ public class WebSecurityConfig {
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             ApiResponse apiResponse = new ApiResponse()
                                     .status(HttpStatus.FORBIDDEN.value())
-                                    .message("Acesso negado");
+                                    .message("Access denied");
                             response.setStatus(HttpStatus.FORBIDDEN.value());
                             response.setContentType("application/json;charset=UTF-8");
                             response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));

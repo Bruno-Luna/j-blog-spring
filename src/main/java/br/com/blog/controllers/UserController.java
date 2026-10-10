@@ -35,7 +35,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse()
                         .status(HttpStatus.CREATED.value())
-                        .message("User created with success")
+                        .message("User created successfully")
                         .data("user", userService.saveUser(userRequestDTO)));
     }
 
@@ -49,7 +49,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponse()
                             .status(HttpStatus.OK.value())
-                            .message("Login successful")
+                            .message("Authentication successful")
                             .data("token", token));
         }
 

@@ -48,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (RuntimeException ignored) {
-                // Tokens inválidos ou expirados seguem sem autenticação e resultam em 401.
+                // Invalid or expired tokens remain unauthenticated and result in 401.
             }
         }
         chain.doFilter(request, response);

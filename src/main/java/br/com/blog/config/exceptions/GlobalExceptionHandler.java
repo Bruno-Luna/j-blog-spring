@@ -26,13 +26,15 @@ public class GlobalExceptionHandler {
                 .stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        FieldError::getDefaultMessage,
+                        fieldError -> fieldError.getDefaultMessage() == null
+                                ? "Invalid value"
+                                : fieldError.getDefaultMessage(),
                         (existing, replacement) -> existing
                 ));
 
         ApiResponse response = new ApiResponse()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("Error validating request")
+                .message("Validation failed")
                 .errors(errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -41,9 +43,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgument(IllegalArgumentException ex) {
         logger.error("Invalid argument error", ex);
+        String message = ex.getMessage();
+
         ApiResponse response = new ApiResponse()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .message("The provided ID cannot be null or blank");
+                .message(message == null || message.isBlank() ? "Invalid request" : message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -51,7 +55,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleResponseStatus(ResponseStatusException ex) {
         ApiResponse response = new ApiResponse()
                 .status(ex.getStatusCode().value())
-                .message(ex.getReason());
+                .message(ex.getReason() == null || ex.getReason().isBlank() ? "Request failed" : ex.getReason());
 
         return ResponseEntity.status(ex.getStatusCode()).body(response);
     }
