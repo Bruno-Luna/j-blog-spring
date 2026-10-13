@@ -61,6 +61,10 @@ public class PostController {
         return posts.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(posts);
     }
 
+    @Operation(
+            summary = "Cria uma nova postagem",
+            description = "Permite criar uma nova postagem, fornecendo o título e o corpo da postagem no corpo da requisição"
+    )
     @PostMapping()
     public ResponseEntity<Object> insertPost(Authentication authentication,
                                              @RequestBody @Valid PostRequestDTO postRequestDTO){
