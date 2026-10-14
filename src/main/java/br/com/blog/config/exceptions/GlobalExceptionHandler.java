@@ -1,6 +1,6 @@
 package br.com.blog.config.exceptions;
 
-import br.com.blog.api.ApiResponse;
+import br.com.blog.api.ApiResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResult> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
                         (existing, replacement) -> existing
                 ));
 
-        ApiResponse response = new ApiResponse()
+        ApiResult response = new ApiResult()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message("Validation failed")
                 .errors(errors);
@@ -41,19 +41,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ApiResult> handleIllegalArgument(IllegalArgumentException ex) {
         logger.error("Invalid argument error", ex);
         String message = ex.getMessage();
 
-        ApiResponse response = new ApiResponse()
+        ApiResult response = new ApiResult()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(message == null || message.isBlank() ? "Invalid request" : message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ApiResponse> handleResponseStatus(ResponseStatusException ex) {
-        ApiResponse response = new ApiResponse()
+    public ResponseEntity<ApiResult> handleResponseStatus(ResponseStatusException ex) {
+        ApiResult response = new ApiResult()
                 .status(ex.getStatusCode().value())
                 .message(ex.getReason() == null || ex.getReason().isBlank() ? "Request failed" : ex.getReason());
 

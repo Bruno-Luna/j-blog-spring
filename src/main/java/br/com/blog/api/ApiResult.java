@@ -3,24 +3,24 @@ package br.com.blog.api;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ApiResponse extends LinkedHashMap {
+public class ApiResult extends LinkedHashMap {
 
-    public ApiResponse status(int status) {
+    public ApiResult status(int status) {
         this.put("status", status);
         return this;
     }
 
-    public ApiResponse message(String message) {
+    public ApiResult message(String message) {
         this.put("message", message);
         return this;
     }
 
-    public ApiResponse data(String key, Object value) {
+    public ApiResult data(String key, Object value) {
         this.put(key, value);
         return this;
     }
 
-    public ApiResponse errors(Map<String, String> errors) {
+    public ApiResult errors(Map<String, String> errors) {
         this.put("errors", errors);
         return this;
     }

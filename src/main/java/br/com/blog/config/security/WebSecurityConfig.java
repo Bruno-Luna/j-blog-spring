@@ -1,6 +1,6 @@
 package br.com.blog.config.security;
 
-import br.com.blog.api.ApiResponse;
+import br.com.blog.api.ApiResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,20 +42,20 @@ public class WebSecurityConfig {
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
-                            ApiResponse apiResponse = new ApiResponse()
+                            ApiResult apiResult = new ApiResult()
                                     .status(HttpStatus.UNAUTHORIZED.value())
                                     .message("Authentication required");
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
                             response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            ApiResponse apiResponse = new ApiResponse()
+                            ApiResult apiResult = new ApiResult()
                                     .status(HttpStatus.FORBIDDEN.value())
                                     .message("Access denied");
                             response.setStatus(HttpStatus.FORBIDDEN.value());
                             response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+                            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
                         })
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
