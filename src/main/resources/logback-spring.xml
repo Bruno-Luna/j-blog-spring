@@ -1,0 +1,32 @@
+<configuration>
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <loggerName/>
+                <threadName/>
+                <level/>
+                <message/>
+                <logstashMarkers/>
+                <mdc>
+                    <includeMdcKeyName>traceId</includeMdcKeyName>
+                    <includeMdcKeyName>spanId</includeMdcKeyName>
+                    <includeMdcKeyName>httpMethod</includeMdcKeyName>
+                    <includeMdcKeyName>status</includeMdcKeyName>
+                    <includeMdcKeyName>user</includeMdcKeyName>
+                    <includeMdcKeyName>uri</includeMdcKeyName>
+                    <includeMdcKeyName>responseTime</includeMdcKeyName>
+                    <mdcKeyFieldName>uri=route</mdcKeyFieldName>
+                    <mdcKeyFieldName>responseTime=responseTimeMs</mdcKeyFieldName>
+                </mdc>
+            </providers>
+        </encoder>
+    </appender>
+
+    <logger name="br.com.blog.config.security.SecureRequestLoggingFilter" level="DEBUG"/>
+    <logger name="io.opentelemetry.exporter.internal.http.HttpExporter" level="ERROR"/>
+
+    <root level="INFO">
+        <appender-ref ref="JSON"/>
+    </root>
+</configuration>
