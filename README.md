@@ -1,152 +1,177 @@
-# J-Blog Spring API 🚀
+# J-Blog Spring API
 
-API REST para gerenciamento de usuários e posts, desenvolvida com Spring Boot. A aplicação oferece cadastro de usuários, autenticação via JWT e gerenciamento autenticado dos próprios posts.
+API REST para gerenciamento de usuários e postagens de um blog pessoal, construída com Spring Boot 3, Java 21 e autenticação JWT.
+
+## Visão geral
+
+A aplicação oferece:
+
+- cadastro de usuários
+- autenticação com JWT
+- gerenciamento de postagens por usuário autenticado
+- busca de postagens por filtros
+- documentação automática via Swagger/OpenAPI
+- tratamento global de erros e respostas padronizadas
+
+Versão atual: `0.3.0`
 
 ## Tecnologias
 
 - Java 21
 - Spring Boot 3.3.4
 - Spring Web
-- Spring Data JPA e Hibernate
+- Spring Data JPA
 - Spring Validation
 - Spring Security
 - JJWT 0.11.5
 - PostgreSQL
-- Springdoc OpenAPI 2.2.0 (Swagger UI)
+- Springdoc OpenAPI 2.2.0
 - Maven Wrapper
-- Spring Boot DevTools
-- Spring Boot Test
-
-Versão atual da aplicação: `0.2.0`.
+- Actuator + Micrometer/OpenTelemetry
 
 ## Pré-requisitos
 
-- JDK 21 configurado em `JAVA_HOME`.
-- PostgreSQL em execução na porta `5432`.
-- Maven é opcional, pois o projeto inclui `mvnw` e `mvnw.cmd`.
+- JDK 21 instalado e configurado no `JAVA_HOME`
+- PostgreSQL em execução localmente
+- Banco de dados `blog-db` criado
+- Maven opcional: o projeto já inclui `mvnw` e `mvnw.cmd`
 
 ## Configuração local
 
-1. Clone o repositório e entre na pasta:
+1. Clone o repositório:
 
    ```powershell
-   git clone https://github.com/Bruno-Luna/j-blog-spring.git
+   git clone https://github.com/Brunos-Luna/j-blog-spring.git
    Set-Location j-blog-spring
    ```
 
-2. Crie o banco de dados:
+2. Crie o banco de dados no PostgreSQL:
 
    ```sql
    CREATE DATABASE "blog-db";
    ```
 
-3. Revise `src/main/resources/application.properties`:
+3. Ajuste as variáveis de conexão e JWT no arquivo `src/main/resources/application.properties`:
 
    ```properties
    server.port=8085
+
    spring.datasource.url=jdbc:postgresql://localhost:5432/blog-db
    spring.datasource.username=postgres
-   spring.datasource.password=ALTERE_ESTA_SENHA
+   spring.datasource.password=root
    spring.jpa.hibernate.ddl-auto=update
-   jwt.secret=ALTERE_ESTE_SEGREDO
+   spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+
+   jwt.secret=uma-string-bem-grande-e-segura-para-chave-jwt-2026
    ```
 
-   O projeto usa `ddl-auto=update`, uma configuração adequada apenas para desenvolvimento. Em ambientes reais, forneça as credenciais do banco e o segredo JWT por variáveis de ambiente ou configuração externa. O segredo deve ser longo, aleatório e mantido fora do controle de versão.
+Observações:
+
+- `ddl-auto=update` é adequado apenas para desenvolvimento.
+- Em produção, prefira usar variáveis de ambiente ou um secret manager.
+- O segredo JWT deve ser longo, aleatório e protegido fora do controle de versão.
 
 ## Execução
 
-No Windows PowerShell:
+Windows PowerShell:
 
 ```powershell
-.\mvnw.cmd spring-boot:run
+./mvnw.cmd spring-boot:run
 ```
 
-No Linux ou macOS:
+Linux/macOS:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-A API estará disponível em `http://localhost:8085`.
+A aplicação ficará disponível em:
 
-A documentação OpenAPI pode ser acessada em:
+- API: `http://localhost:8085`
+- Swagger UI: `http://localhost:8085/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8085/v3/api-docs`
 
-- Swagger UI: `http://localhost:8085/swagger-ui.html`
-- Especificação OpenAPI: `http://localhost:8085/v3/api-docs`
+## Segurança e autenticação
 
-## Autenticação
+A API usa JWT para autenticar solicitações protegidas.
 
-Os endpoints de registro e login são públicos. Os endpoints de posts exigem um token JWT no cabeçalho:
+### Registro público
+
+- `POST /user/register`
+
+### Login público
+
+- `POST /user/login`
+
+### Endpoints protegidos
+
+Todos os endpoints de `/post` exigem token JWT válido no cabeçalho:
 
 ```http
 Authorization: Bearer SEU_TOKEN_JWT
 ```
 
-Características da autenticação:
+Regras da aplicação:
 
-- O username é usado como subject do token.
-- O token expira após 30 minutos.
-- As senhas são armazenadas usando BCrypt.
-- As sessões são stateless.
-- CSRF está desabilitado para a API.
-- O CORS está aberto para qualquer origem na configuração atual.
+- o `username` é usado como subject do token
+- as senhas são armazenadas com BCrypt
+- a autenticação é stateless
+- CSRF está desabilitado para a API REST
+- CORS está liberalmente configurado para qualquer origem
 
 ## Endpoints
 
 ### Usuários
 
-#### `POST /user/register`
+#### POST `/user/register`
 
-Cria um usuário.
+Cria um novo usuário.
 
-Corpo da requisição:
+Request body:
 
 ```json
 {
-  "username": "seu-nome",
-  "password": "sua-senha"
+  "username": "bruno",
+  "password": "123456"
 }
 ```
 
-Respostas principais:
-
-- `201 Created`: usuário criado, com `user` na raiz da resposta.
-- `409 Conflict`: username já utilizado.
-
-Exemplo de resposta:
+Resposta de sucesso (`201 Created`):
 
 ```json
 {
   "status": 201,
-  "message": "User created with success",
+  "message": "User created successfully",
   "user": {
-    "userId": "UUID_DO_USUARIO",
-    "username": "seu-nome",
-    "createdAt": "09/10/2026 14:30:00"
+    "userId": "UUID",
+    "username": "bruno",
+    "createdAt": "2026-10-24T12:34:56"
   }
 }
 ```
 
-#### `POST /user/login`
+Conflito (`409 Conflict`): usuário já existente.
 
-Autentica um usuário.
+#### POST `/user/login`
 
-Corpo da requisição:
+Autentica o usuário e retorna um token JWT.
+
+Request body:
 
 ```json
 {
-  "username": "seu-nome",
-  "password": "sua-senha"
+  "username": "bruno",
+  "password": "123456"
 }
 ```
 
-Resposta de sucesso:
+Resposta de sucesso (`200 OK`):
 
 ```json
 {
   "status": 200,
-  "message": "Login success",
-  "token": "SEU_TOKEN_JWT"
+  "message": "Authentication successful",
+  "Bearer": "eyJhbGciOiJIUzI1NiJ9..."
 }
 ```
 
@@ -154,58 +179,65 @@ Credenciais inválidas retornam `401 Unauthorized`.
 
 ### Posts
 
-Todos os endpoints desta seção exigem autenticação JWT.
+Todos os endpoints abaixo exigem autenticação.
 
-#### `GET /post/me/posts`
+#### GET `/post/me/posts`
 
-Lista os posts pertencentes ao usuário autenticado.
+Lista as postagens do usuário autenticado.
 
-- `200 OK`: retorna diretamente um array de posts.
-- `204 No Content`: o usuário não possui posts.
+- `200 OK`: retorna a lista de posts
+- `204 No Content`: usuário sem postagens
 
-Cada post contém `postId`, `title`, `body` e `updatedAt`. A data é formatada como `dd/MM/yyyy HH:mm:ss`.
+#### GET `/post/by-filters`
 
-#### `POST /post`
+Busca posts por filtros opcionais.
 
-Cria um post para o usuário autenticado.
+Query params:
 
-Corpo da requisição:
+- `title` (opcional)
+- `body` (opcional)
+- `username` (opcional)
+
+Exemplo:
+
+```http
+GET /post/by-filters?title=primeiro&username=bruno
+```
+
+#### POST `/post`
+
+Cria uma nova postagem para o usuário autenticado.
+
+Request body:
 
 ```json
 {
   "title": "Meu primeiro post",
-  "body": "Conteúdo do post"
+  "body": "Conteúdo da postagem"
 }
 ```
 
-Regras:
+Resposta de sucesso (`201 Created`):
 
-- `title` é obrigatório e aceita até 100 caracteres.
-- `body` é obrigatório.
-- `postId`, usuário e data são definidos pelo servidor.
-
-Resposta de sucesso: `201 Created`, com o post no campo `post` da raiz da resposta.
-
-Exemplo no PowerShell:
-
-```powershell
-curl.exe -X POST http://localhost:8085/post `
-  -H "Authorization: Bearer SEU_TOKEN_JWT" `
-  -H "Content-Type: application/json" `
-  -d '{"title":"Meu primeiro post","body":"Conteúdo do post"}'
+```json
+{
+  "status": 201,
+  "message": "Post created successfully",
+  "post": {
+    "postId": "UUID",
+    "title": "Meu primeiro post",
+    "body": "Conteúdo da postagem",
+    "createdAt": "2026-10-24T12:34:56",
+    "updatedAt": "2026-10-24T12:34:56"
+  }
+}
 ```
 
-#### `PUT /post/{postId}`
+#### PUT `/post/{postId}`
 
-Edita um post do usuário autenticado. O UUID deve ser informado na URL, e não no corpo.
+Atualiza uma postagem do usuário autenticado.
 
-Exemplo de URL:
-
-```text
-PUT /post/UUID_DO_POST
-```
-
-Corpo da requisição:
+Request body:
 
 ```json
 {
@@ -214,106 +246,99 @@ Corpo da requisição:
 }
 ```
 
-Respostas principais:
+Possíveis respostas:
 
-- `200 OK`: post atualizado.
-- `403 Forbidden`: o post pertence a outro usuário.
-- `404 Not Found`: post ou usuário não encontrado.
+- `200 OK`: postagem atualizada
+- `403 Forbidden`: postagem de outro usuário
+- `404 Not Found`: post não encontrado
 
-#### `DELETE /post/{postId}`
+#### DELETE `/post/{postId}`
 
-Exclui um post do usuário autenticado. O UUID deve ser informado na URL e a requisição não precisa de corpo.
+Remove uma postagem do usuário autenticado.
+
+Possíveis respostas:
+
+- `200 OK`: postagem removida
+- `403 Forbidden`: postagem de outro usuário
+- `404 Not Found`: post inexistente
+
+## Formato padrão das respostas
+
+A API padroniza as respostas em um objeto com `status` e `message`, e, quando necessário, adiciona o payload em um campo específico.
 
 Exemplo:
 
-```text
-DELETE /post/UUID_DO_POST
-```
-
-Respostas principais:
-
-- `200 OK`: post excluído.
-- `403 Forbidden`: o post pertence a outro usuário.
-- `404 Not Found`: post inexistente.
-
-## Formato das respostas
-
-As respostas de operações usam `status` e `message`. Quando aplicável, os dados são adicionados diretamente na raiz, sem um campo `data` intermediário.
-
-Exemplo de criação ou edição de post:
-
 ```json
 {
-  "status": 201,
-  "message": "Post created with success",
-  "post": {
-    "postId": "UUID_DO_POST",
-    "title": "Meu primeiro post",
-    "body": "Conteúdo do post",
-    "updatedAt": "09/10/2026 14:30:00"
-  }
+  "status": 200,
+  "message": "Authentication successful",
+  "Bearer": "eyJhbGciOiJIUzI1NiJ9..."
 }
 ```
 
-O endpoint `GET /post/me/posts` retorna diretamente um array JSON. O login retorna o token no campo `token`, e o cadastro retorna o usuário no campo `user`.
-
 ## Códigos de erro
 
-- `400 Bad Request`: dados inválidos ou argumentos incorretos.
-- `401 Unauthorized`: credenciais inválidas ou autenticação ausente.
-- `403 Forbidden`: usuário não é proprietário do post.
-- `404 Not Found`: usuário ou post não encontrado.
-- `409 Conflict`: username já existente.
+- `400 Bad Request`: dados inválidos
+- `401 Unauthorized`: credenciais inválidas ou autenticação ausente
+- `403 Forbidden`: acesso negado
+- `404 Not Found`: recurso inexistente
+- `409 Conflict`: conflito de dados (ex.: username já em uso)
 
-Os erros normalmente seguem este formato:
+Exemplo de erro:
 
 ```json
 {
-  "status": 403,
-  "message": "Acesso negado"
+  "status": 401,
+  "message": "Authentication required"
 }
 ```
 
 ## Testes e build
 
-Executar os testes:
+Executar testes:
 
 ```powershell
-.\mvnw.cmd clean test
+./mvnw.cmd clean test
 ```
 
-O projeto possui um teste de carregamento do contexto Spring.
-
-Gerar o artefato sem executar os testes:
+Gerar pacote JAR:
 
 ```powershell
-.\mvnw.cmd clean package -DskipTests
+./mvnw.cmd clean package -DskipTests
 ```
 
 ## Estrutura do projeto
 
-Em `src/main/java/br/com/blog`:
+```text
+src/
+├── main/
+│   ├── java/
+│   │   └── br/com/blog/
+│   │       ├── api/
+│   │       ├── config/
+│   │       │   ├── exceptions/
+│   │       │   └── security/
+│   │       ├── controllers/
+│   │       ├── dto/
+│   │       ├── models/
+│   │       ├── repositories/
+│   │       ├── services/
+│   │       └── BlogApplication.java
+│   └── resources/
+│       └── application.properties
+└── test/
+    └── java/
+```
 
-- `api/`: respostas padronizadas e configuração OpenAPI.
-- `config/security/`: configuração do Spring Security, filtro JWT e carregamento de usuários.
-- `config/exceptions/`: tratamento global de exceções.
-- `controllers/`: endpoints REST de usuários e posts.
-- `dto/`: objetos de requisição e resposta.
-- `models/`: entidades JPA de usuários e posts.
-- `repositories/`: repositórios Spring Data JPA.
-- `services/`: regras de negócio e geração/validação de JWT.
-- `BlogApplication`: classe principal e configuração do log de requisições.
+## Observações para produção
 
-## Considerações para produção
-
-- Remover credenciais do arquivo `application.properties` e usar configuração externa.
-- Usar um segredo JWT longo, aleatório e protegido.
-- Restringir o CORS a origens confiáveis.
-- Substituir `ddl-auto=update` por uma estratégia de migração de banco.
-- Avaliar a exposição de payloads, query strings e informações do cliente nos logs de requisição.
-- Adicionar testes para autenticação, autorização, validação e operações de posts.
-- Revisar a nomenclatura do esquema de segurança exibido no OpenAPI para garantir que o botão de autenticação do Swagger corresponda às anotações dos controllers.
+- remover credenciais e segredos do `application.properties`
+- externalizar configuração com variáveis de ambiente ou secret manager
+- usar uma chave JWT forte e segura
+- restringir CORS para origens confiáveis
+- substituir `ddl-auto=update` por migração de banco (Flyway/Liquibase)
+- ampliar a cobertura de testes para autenticação, autorização e casos de erro
 
 ## Autor
 
-[Bruno-Luna](https://github.com/Bruno-Luna) · [Repositório no GitHub](https://github.com/Bruno-Luna/j-blog-spring)
+[Brunos Luna](https://github.com/Brunos-Luna)
