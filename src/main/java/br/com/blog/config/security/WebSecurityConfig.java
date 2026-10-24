@@ -24,9 +24,14 @@ public class WebSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, JwtAuthFilter jwtAuthFilter) {
+    private final SecureRequestLoggingFilter secureRequestLoggingFilter;
+
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
+                             JwtAuthFilter jwtAuthFilter,
+                             SecureRequestLoggingFilter secureRequestLoggingFilter) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.secureRequestLoggingFilter = secureRequestLoggingFilter;
     }
 
     @Bean
@@ -58,7 +63,8 @@ public class WebSecurityConfig {
                             response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
                         })
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(secureRequestLoggingFilter, JwtAuthFilter.class);
         return http.build();
     }
 
